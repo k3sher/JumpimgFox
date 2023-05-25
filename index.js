@@ -34,8 +34,8 @@ const y = canvas.height / 2
 
 const player = new Player({
     position: {
-        x: 203,
-        y: 88,
+        x: 16,
+        y: 90,
     },
     width: 16,
     height: 16,

@@ -35,7 +35,7 @@ class CollisionBlock {
             (Math.min(sides.left, newSides.left) < this.sides.right)   && 
             (Math.max(sides.right, newSides.right) > this.sides.left))
     }
-    checkNonEmptyIntersction({sides, newSides}) {
+    checkIntersctionWithBounds({sides, newSides}) {
         return ((Math.min(sides.top, newSides.top) <= this.sides.bottom) && 
             (Math.max(sides.bottom, newSides.bottom) >= this.sides.top)  && 
             (Math.min(sides.left, newSides.left) <= this.sides.right)   && 

@@ -16,7 +16,7 @@ class Player {
         }
         this.acceleration = {
             x: 0,
-            y: 0.25
+            y: DEFAULT_ACCELARATION
         }
         this.width = width
         this.height = height
@@ -35,21 +35,36 @@ class Player {
         this.nearestCollisionBlocksY = []
         this.nearestCollisionBlockTimeX = Number.MAX_VALUE
         this.nearestCollisionBlockTimeY = Number.MAX_VALUE
+        this.state = {
+            top: false,
+            bottom: false,
+            left: false,
+            leftPush: false,
+            right: false,
+            rightPush: false,
+            onWall: false
+        }
     }
 
     jump() {
-        if (this.velocity.y == 0 && this.sides.bottom >= canvas.height/3 || this.jumpAvailable) {
-            this.velocity.y = -4.25
+        if (this.velocity.y == 0 && this.sides.bottom >= canvas.height/3 || this.state.bottom) {
+            this.velocity.y = JUMP_VELOCITY
             this.jumpAvailable = false
         }
     }
 
     walkRight() {
-        this.velocity.x = 3
+        if (this.state.onWall && !this.state.bottom && (this.state.left || this.state.leftPush)) {
+            this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
+        }
+        this.velocity.x = RIGHT_VELOCITY
     }
 
     walkLeft() {
-        this.velocity.x = -3
+        if (this.state.onWall && !this.state.bottom && (this.state.right || this.state.rightPush)) {
+            this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
+        }
+        this.velocity.x = LEFT_VELOCITY
     }
 
     stopWalking() {
@@ -94,21 +109,17 @@ class Player {
         while (this.collisionTime > 0) {
             this.sides = this.getSides(this.position)
             this.collectNearestCollisionBlocks()
-            if (this.velocity.y < 0) {
-                // console.log(this.collisionTime, this.nearestCollisionBlockTimeX, this.nearestCollisionBlocksX, this.nearestCollisionBlockTimeY, this.nearestCollisionBlocksY)
-                // console.log(this.position, this.newPosition)
-                // console.log(this.velocity)
-            }
-            if ((this.nearestCollisionBlockTimeX < this.nearestCollisionBlockTimeY || this.nearestCollisionBlockTimeX == this.nearestCollisionBlockTimeY && this.nearestCollisionBlocksX.length >= this.nearestCollisionBlocksY.length) && this.nearestCollisionBlocksX.length != 0 && this.velocity.x != 0) {
+            if (this.nearestCollisionBlockTimeX == this.nearestCollisionBlockTimeY && this.nearestCollisionBlocksX.length == 1 && this.nearestCollisionBlocksY.length == 1) {
+                this.checkAngleCollision({collisionBlock: this.nearestCollisionBlocksX[0]})
+                console.log('angle')
+            } else if ((this.nearestCollisionBlockTimeX < this.nearestCollisionBlockTimeY) && this.nearestCollisionBlocksX.length != 0 && this.velocity.x != 0) {
                 this.nearestCollisionBlocksX.forEach((collisionItem) => {
                     this.checkXCollision({collisionBlock: collisionItem})
                     this.newSides = this.getSides(this.newPosition)
                 })
             } 
             else if ((this.nearestCollisionBlocksY.length != 0) && this.velocity.y != 0) {
-                // console.log('y', this.nearestCollisionBlocksY[0].sides)
                 this.nearestCollisionBlocksY.forEach((collisionItem) => {
-                    // console.log(collisionItem.position)
                     this.checkYCollision({collisionBlock: collisionItem})
                     this.newSides = this.getSides(this.newPosition)
                 })
@@ -129,6 +140,10 @@ class Player {
         return (collisionX - startX) / this.velocity.x
     }
     calcIntersectionTimeByY(startY, collisionY) {
+        if (this.acceleration.y == 0) {
+            return {t1: (collisionY - startY) / this.velocity.y,
+                    t2: (collisionY - startY) / this.velocity.y}
+        }
         let D = (this.velocity.y + this.acceleration.y / 2) * (this.velocity.y + this.acceleration.y / 2) - 
             2 * this.acceleration.y * (collisionY - startY)
         if (D <= 0) {
@@ -149,13 +164,11 @@ class Player {
         this.CollisionBlocks.forEach((collisionItem) => {
             this.checkNearestCollisionBlock({collisionBlock: collisionItem})
         })
-        this.nearestCollisionBlocksX.forEach((collisionBlock) => {
-            collisionBlock.draw({style: 'rgba(255, 0, 0, 0.5)'})})
-        this.nearestCollisionBlocksY.forEach((collisionBlock) => {
-            // console.log(collisionBlock.sides)
-            collisionBlock.draw({style: 'rgba(0, 0, 255, 0.5)'})})
-        if ((this.nearestCollisionBlockTimeX != 0 && this.nearestCollisionBlocksX.length != 0) || (this.nearestCollisionBlockTimeY != 0 && this.nearestCollisionBlocksY.length != 0)) {
-            // console.log(this.velocity, this.nearestCollisionBlockTimeX, this.nearestCollisionBlockTimeY)
+        if (IS_DEBUG) {
+            this.nearestCollisionBlocksX.forEach((collisionBlock) => {
+                collisionBlock.draw({style: 'rgba(255, 0, 0, 0.5)'})})
+            this.nearestCollisionBlocksY.forEach((collisionBlock) => {
+                collisionBlock.draw({style: 'rgba(0, 0, 255, 0.5)'})})
         }
     }
     checkNearestCollisionBlock({collisionBlock}) {
@@ -165,7 +178,6 @@ class Player {
                 if (this.velocity.x > 0) {
                     let lct = this.calcIntersectionTimeByX(
                         this.sides.right, collisionBlock.sides.left)
-                    // console.log('x', collisionBlock, lct)
                     if ((lct >= 0) && (lct <= this.newPositionTime) && (lct < collisionTimeX)) {
                         collisionTimeX = lct
                     }
@@ -189,7 +201,6 @@ class Player {
                 if (this.velocity.y < 0) {
                     let lct = this.calcIntersectionTimeByY(
                         this.sides.top, collisionBlock.sides.bottom)
-                    // console.log('y', collisionBlock, lct)
                     if ((lct.t1 >= 0) && (lct.t1 <= this.newPositionTime) && (lct.t1 < collisionTimeY)) {
                         collisionTimeY = lct.t1
                     } 
@@ -216,6 +227,24 @@ class Player {
             }
         }
     }
+    checkAngleCollision({collisionBlock}) {
+        if (this.velocity.y < 0) {
+            
+            if (this.velocity.x > 0) {
+                this.position.x = collisionBlock.sides.left - this.width
+                this.newPosition.x = this.position.x
+            } else {
+                this.position.x = collisionBlock.sides.right
+                this.newPosition.x = this.position.x
+            }
+            this.velocity.x = 0
+        } else {
+            this.position.y = collisionBlock.sides.top - this.height
+            this.newPosition.y = this.position.y
+            this.velocity.y = 0
+        }
+
+    }
     checkXCollision({collisionBlock}) {
         let collisionTime = this.nearestCollisionBlockTimeX
         if (this.velocity.x > 0) {
@@ -224,12 +253,10 @@ class Player {
                 this.position.x = collisionBlock.sides.left - this.width
                 this.newPosition.x = this.position.x
                 this.velocity.x = 0
-                // this.collisionTime = this.collisionTime - collisionTime
+                this.state.rightPush = true
             } else {
                 collisionBlock.checkedX = true
-                // this.position.x = this.newPosition.x
             }
-            // this.newPosition.x = this.position.x
         }
         else if (this.velocity.x < 0) {
             if ((this.yFunc(collisionTime, this.sides.bottom) > collisionBlock.sides.top) && 
@@ -237,12 +264,10 @@ class Player {
                 this.position.x = collisionBlock.sides.right
                 this.newPosition.x = this.position.x
                 this.velocity.x = 0
-                // this.collisionTime = this.collisionTime - collisionTime
+                this.state.leftPush = true
             } else {
                 collisionBlock.checkedX = true
-                // this.position.x = this.newPosition.x
             }
-            // this.newPosition.x = this.position.x
         }
     }
     checkYCollision({collisionBlock}) {
@@ -250,18 +275,12 @@ class Player {
         if (this.velocity.y < 0) {
             if ((this.xFunc(collisionTime, this.sides.left) < collisionBlock.sides.right) && 
             (this.xFunc(collisionTime, this.sides.right) > collisionBlock.sides.left)) {
-                if (collisionBlock.position.x == 224 && collisionBlock.position.y == 64) {
-                    console.log(this.position, this.newPosition)
-                }
                 this.position.y = collisionBlock.sides.bottom
                 this.newPosition.y = this.position.y
                 this.velocity.y = 0
-                // this.collisionTime = this.collisionTime - collisionTime
             } else {
                 collisionBlock.checkedY = true
-                // this.position.y = this.newPosition.y
             }
-            // this.newPosition.y = this.position.y
         }
         else if (this.velocity.y > 0) {
             if ((this.xFunc(collisionTime, this.sides.left) < collisionBlock.sides.right) && 
@@ -269,26 +288,76 @@ class Player {
                 this.position.y = collisionBlock.sides.top - this.height
                 this.newPosition.y = this.position.y
                 this.velocity.y = 0
-                // this.collisionTime = this.collisionTime - collisionTime
                 this.jumpAvailable = true
             } else {
                 collisionBlock.checkedY = true
-                // this.position.y = this.newPosition.y
             }
-            // this.newPosition.y = this.position.y
+        }
+    }
+
+    reset_state() {
+        this.state = {
+            top: false,
+            bottom: false,
+            left: false,
+            leftPush: false,
+            right: false,
+            rightPush: false,
+            onWall: this.state.onWall
+        }
+    }
+
+    update_state() {
+        this.CollisionBlocks.forEach((collisionItem) => {
+            if (collisionItem.checkIntersctionWithBounds({sides: this.sides, newSides: this.sides})) {
+                if (this.sides.left < collisionItem.sides.right && this.sides.right > collisionItem.sides.left) {
+                    if (this.sides.top == collisionItem.sides.bottom) {
+                        this.state.top = true
+                    }
+                    if (this.sides.bottom == collisionItem.sides.top) {
+                        this.state.bottom = true
+                    }
+                }
+                if (this.sides.top < collisionItem.sides.bottom && this.sides.bottom > collisionItem.sides.top) {
+                    if (this.sides.left == collisionItem.sides.right) {
+                        this.state.left = true
+                    }
+                    if (this.sides.right == collisionItem.sides.left) {
+                        this.state.right = true
+                    }
+                }
+            }
+        })
+
+    }
+
+    update_acceleration() {
+        if ((this.state.leftPush || this.state.rightPush) && this.velocity.y >= 0) {
+            this.acceleration.y = ON_WALL_ACCELARATION
+            this.state.onWall = true
+        } else
+        if ((this.state.left || this.state.right) && this.state.onWall && this.velocity.y >= 0) {
+            this.acceleration.y = ON_WALL_ACCELARATION
+        } else {
+            this.acceleration.y = DEFAULT_ACCELARATION
+            this.state.onWall = false
         }
     }
 
     update() {
+        this.update_acceleration()
         this.calculateNewPosition()
+        this.reset_state()
         this.checkCollisions()
         this.sides = this.getSides(this.newPosition)
         this.position = {
             x: this.newPosition.x,
             y: this.newPosition.y
         }
+        this.update_state()
+        // console.log(this.state.onWall)
         this.newPositionTimeX = 1
-        this.newPositionTimeY = 1   
+        this.newPositionTimeY = 1
     }
 
     draw() {
