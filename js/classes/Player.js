@@ -21,7 +21,7 @@ class Player {
         this.width = width
         this.height = height
         this.sides = {
-            bottom: this.position.y - this.height,
+            bottom: this.position.y + this.height,
             top: this.position.y,
             left: this.position.x,
             right: this.position.x + this.width,
@@ -44,24 +44,39 @@ class Player {
             rightPush: false,
             onWall: false
         }
+
+        this.cameraBox = {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            }, 
+            sides:{
+                bottom: this.position.y + 80,
+                top: this.position.y,
+                left: this.position.x,
+                right: this.position.x + 200,
+            },
+            width: 100,
+            height: 80
+        }
     }
 
     jump() {
-        if (this.velocity.y == 0 && this.sides.bottom >= canvas.height/3 || this.state.bottom) {
+        if (this.state.bottom) {
             this.velocity.y = JUMP_VELOCITY
             this.jumpAvailable = false
         }
     }
 
     walkRight() {
-        if (this.state.onWall && !this.state.bottom && (this.state.left || this.state.leftPush)) {
+        if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
         }
         this.velocity.x = RIGHT_VELOCITY
     }
 
     walkLeft() {
-        if (this.state.onWall && !this.state.bottom && (this.state.right || this.state.rightPush)) {
+        if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
         }
         this.velocity.x = LEFT_VELOCITY
@@ -73,20 +88,20 @@ class Player {
 
     calculateNewPosition() {
         this.newPosition.x += this.velocity.x
-        if (this.newPosition.x > canvas.width/3 - this.width) {
-            this.newPosition.x = canvas.width/3 - this.width
-        } else if (this.newPosition.x < 0) {
-            this.newPosition.x = 0
-        }
+        this.velocity.y += this.acceleration.y
+        this.newPosition.y += this.velocity.y
+        // if (this.newPosition.x > canvas.width/CANVAS_SCALE - this.width) {
+        //     this.newPosition.x = canvas.width/CANVAS_SCALE - this.width
+        // } else if (this.newPosition.x < 0) {
+        //     this.newPosition.x = 0
+        // }
 
-        if (this.sides.bottom + this.velocity.y < canvas.height/3) {
-            this.velocity.y += this.acceleration.y
-            this.newPosition.y += this.velocity.y
-        } else {
-            this.velocity.y = 0
-            this.newPosition.y = canvas.height/3 - this.height
-            this.jumpAvailable = true
-        }
+        // if (this.sides.bottom + this.velocity.y < canvas.height/CANVAS_SCALE) {
+        // } else {
+        //     this.velocity.y = 0
+        //     this.newPosition.y = canvas.height/CANVAS_SCALE - this.height
+        //     this.jumpAvailable = true
+        // }
     }
 
     getSides(position) {
@@ -295,7 +310,7 @@ class Player {
         }
     }
 
-    reset_state() {
+    resetState() {
         this.state = {
             top: false,
             bottom: false,
@@ -307,7 +322,7 @@ class Player {
         }
     }
 
-    update_state() {
+    updateState() {
         this.CollisionBlocks.forEach((collisionItem) => {
             if (collisionItem.checkIntersctionWithBounds({sides: this.sides, newSides: this.sides})) {
                 if (this.sides.left < collisionItem.sides.right && this.sides.right > collisionItem.sides.left) {
@@ -331,7 +346,7 @@ class Player {
 
     }
 
-    update_acceleration() {
+    updateAcceleration() {
         if ((this.state.leftPush || this.state.rightPush) && this.velocity.y >= 0) {
             this.acceleration.y = ON_WALL_ACCELARATION
             this.state.onWall = true
@@ -344,17 +359,79 @@ class Player {
         }
     }
 
+    updatecameraBox() {
+        this.cameraBox = {
+            position: {
+                x: this.position.x - (this.cameraBox.width - this.width)/2,
+                y: this.position.y - (this.cameraBox.height - this.height)/2,
+            }, 
+            sides: this.cameraBox.sides,
+            width: this.cameraBox.width,
+            height: this.cameraBox.height
+        }
+        this.cameraBox.sides = {
+            bottom: this.cameraBox.position.y + this.cameraBox.height,
+            top: this.cameraBox.position.y,
+            left: this.cameraBox.position.x,
+            right: this.cameraBox.position.x + this.cameraBox.width,
+        }
+        if (IS_DEBUG){
+            this.drawCameraBox()
+        }
+    }
+
+    drawCameraBox() {
+        c.fillStyle = 'rgba(0, 0, 255, 0.1)'
+        c.fillRect(
+            this.cameraBox.position.x,
+            this.cameraBox.position.y,
+            this.cameraBox.width,
+            this.cameraBox.height
+        )
+    }
+
+    updateCameraByPlayerCameraBox({canvas, camera, levelSizes}) {
+        if (this.cameraBox.sides.right > camera.position.x + canvas.width/CANVAS_SCALE) {
+            camera.position.x = this.cameraBox.sides.right - canvas.width/CANVAS_SCALE
+        }
+        if (this.cameraBox.sides.left < camera.position.x) {
+            camera.position.x = this.cameraBox.sides.left
+        }
+        if (this.cameraBox.sides.top < camera.position.y) {
+            camera.position.y = this.cameraBox.sides.top
+        }
+        if (this.cameraBox.sides.bottom > canvas.height/CANVAS_SCALE + camera.position.y) {
+            camera.position.y = this.cameraBox.sides.bottom - canvas.height/CANVAS_SCALE
+        }
+
+        if (camera.position.x < 0) {
+            camera.position.x = 0
+        }
+        if (camera.position.x + canvas.width/CANVAS_SCALE > levelSizes.width) {
+            camera.position.x = levelSizes.width - canvas.width/CANVAS_SCALE
+        }
+        if (camera.position.y < 0) {
+            camera.position.y = 0
+        }
+        if (camera.position.y + canvas.height/CANVAS_SCALE > levelSizes.height) {
+            camera.position.y = levelSizes.height - canvas.height/CANVAS_SCALE
+        }
+    }
+
+
     update() {
-        this.update_acceleration()
+        this.updateAcceleration()
         this.calculateNewPosition()
-        this.reset_state()
+        this.resetState()
         this.checkCollisions()
         this.sides = this.getSides(this.newPosition)
         this.position = {
             x: this.newPosition.x,
             y: this.newPosition.y
         }
-        this.update_state()
+        this.updateState()
+        this.updatecameraBox()
+        
         // console.log(this.state.onWall)
         this.newPositionTimeX = 1
         this.newPositionTimeY = 1
