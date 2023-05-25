@@ -48,12 +48,19 @@ for (let i = 0; i < levelInfo.secretRoomsIds.length; i++) {
     })
     secretRooms.push(
         new Area({
-            areaSprite: new Sprite({
+            areaWallSprite: new Sprite({
                 position: {
                     x: 0,
                     y: 0,
                 },
-                imageSrc: levelInfo.secretRoomsSrc[i],
+                imageSrc: levelInfo.secretRoomsSrc[i].wall,
+            }),
+            areaBackgroundSprite: new Sprite({
+                position: {
+                    x: 0,
+                    y: 0,
+                },
+                imageSrc: levelInfo.secretRoomsSrc[i].background,
             }), 
             areaBlocks: areaBlocks
         })
@@ -116,8 +123,14 @@ function animate() {
     // CollisionBlocks.forEach((block) => {block.draw()})
     player.update()
     player.updateCameraByPlayerCameraBox({canvas: canvas, camera: camera, levelSizes: levelSizes})
-    secretRooms.forEach(area => {area.draw({playerSides: player.sides})})
+    secretRooms.forEach(area => {
+        area.updateAlpha({playerSides: player.sides})
+        area.drawBackground()
+    })
     player.draw()
+    secretRooms.forEach(area => {
+        area.drawWalls()
+    })
     key_processing()
     c.restore()
 }

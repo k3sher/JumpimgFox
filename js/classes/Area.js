@@ -1,7 +1,9 @@
 class Area {
-    constructor({areaSprite, areaBlocks}) {
+    constructor({areaWallSprite, areaBackgroundSprite, areaBlocks}) {
         this.areaBlocks = areaBlocks
-        this.areaSprite = areaSprite
+        this.areaWallSprite = areaWallSprite
+        this.areaBackgroundSprite = areaBackgroundSprite
+        this.alpha = 1
     }
     calcAreaIntersection({sides}) {
         let sumIntersection = 0
@@ -10,8 +12,13 @@ class Area {
         });
         return sumIntersection
     }
-    draw({playerSides}){
-        let alpha = 1 - 0.7 * this.calcAreaIntersection({sides: playerSides}) / (playerSides.bottom - playerSides.top) /  (playerSides.right - playerSides.left)
-        this.areaSprite.drawWithTransparentAlpha({alpha: alpha})
+    updateAlpha({playerSides}) {
+        this.alpha = 1 - 0.7 * this.calcAreaIntersection({sides: playerSides}) / (playerSides.bottom - playerSides.top) /  (playerSides.right - playerSides.left)
+    }
+    drawWalls(){
+        this.areaWallSprite.drawWithTransparentAlpha({alpha: this.alpha})
+    }
+    drawBackground(){
+        this.areaBackgroundSprite.drawWithTransparentAlpha({alpha: this.alpha})
     }
 }

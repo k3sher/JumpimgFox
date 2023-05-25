@@ -69,14 +69,16 @@ class Player {
     }
 
     walkRight() {
-        if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
+        // if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
+        if (!this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
         }
         this.velocity.x = RIGHT_VELOCITY
     }
 
     walkLeft() {
-        if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
+        // if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
+        if (!this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
         }
         this.velocity.x = LEFT_VELOCITY
@@ -89,6 +91,11 @@ class Player {
     calculateNewPosition() {
         this.newPosition.x += this.velocity.x
         this.velocity.y += this.acceleration.y
+        if (this.state.onWall && (this.velocity.y > ON_WALL_MAX_FALL_SPEED)) {
+            this.velocity.y = ON_WALL_MAX_FALL_SPEED
+        } else if (!this.state.onWall && (this.velocity.y > DEFAULT_MAX_FALL_SPEED)) {
+            this.velocity.y = DEFAULT_MAX_FALL_SPEED
+        }
         this.newPosition.y += this.velocity.y
         // if (this.newPosition.x > canvas.width/CANVAS_SCALE - this.width) {
         //     this.newPosition.x = canvas.width/CANVAS_SCALE - this.width
