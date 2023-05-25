@@ -4,6 +4,9 @@ class Sprite {
         this.image = new Image()
         this.image.src = imageSrc
     }
+    updatePosition({position}) {
+        this.position = position
+    }
     draw() {
         c.drawImage(this.image, this.position.x, this.position.y)
     }

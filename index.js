@@ -67,6 +67,16 @@ for (let i = 0; i < levelInfo.secretRoomsIds.length; i++) {
     )
 }
 
+const coins = []
+levelInfo.coinsPositions.forEach(mapPosition => {
+    coins.push(new Coin({
+        centerPosition: {
+            x: mapPosition.x * levelInfo.tileSize,
+            y: mapPosition.y * levelInfo.tileSize
+        }
+    }))
+})
+
 const levelSizes = {
     width: levelInfo.width * levelInfo.tileSize,
     height: levelInfo.height * levelInfo.tileSize,
@@ -90,6 +100,11 @@ const player = new Player({
     width: 16,
     height: 16,
     CollisionBlocks: CollisionBlocks
+})
+
+const playerStats = new PlayerStats({
+    position: camera.position,
+    player: player
 })
 
 const keys = {
@@ -119,9 +134,13 @@ function animate() {
     c.save()
     c.scale(CANVAS_SCALE, CANVAS_SCALE)
     c.translate(-camera.position.x, -camera.position.y)
+    playerStats.updatePosition({position: camera.position})
     backgroundTestLevel.draw()
-    // CollisionBlocks.forEach((block) => {block.draw()})
     player.update()
+    coins.forEach(coin => {
+        coin.tryCollect({player: player})
+        coin.draw()
+    })
     player.updateCameraByPlayerCameraBox({canvas: canvas, camera: camera, levelSizes: levelSizes})
     secretRooms.forEach(area => {
         area.updateAlpha({playerSides: player.sides})
@@ -132,6 +151,7 @@ function animate() {
         area.drawWalls()
     })
     key_processing()
+    playerStats.draw()
     c.restore()
 }
 

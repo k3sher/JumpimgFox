@@ -9,4 +9,12 @@ ON_WALL_MAX_FALL_SPEED = 2
 
 CANVAS_SCALE = 3
 
+COIN_IMAGE_SRC = './src/maps/additionalAssets/coin.png'
+COIN_IMAGE_SIZE = 32
+COIN_HITBOX_SIZE = 16
+
+STATS_BACKGROUND_SRC = './src/maps/additionalAssets/statsBackground.png'
+STATS_TEXT_FONT = '16px Arial Helvetica sans-serif'
+STATS_TEXT_COLOR = 'rgb(254, 183, 29)'
+
 IS_DEBUG = false

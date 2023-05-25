@@ -59,6 +59,7 @@ class Player {
             width: 200,
             height: 80
         }
+        this.collectedCoins = 0
     }
 
     jump() {
