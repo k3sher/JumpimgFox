@@ -403,5 +403,8 @@ src/maps/tiles/
 # Проект Tiled для карты
 src/maps/CastleMapProject/
 
-# исходные файлы анимаций
+# Исходные файлы анимаций
 *.aseprite
+
+# Исходные файлы картинок PS
+*.psd

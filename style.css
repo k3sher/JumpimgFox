@@ -66,12 +66,43 @@
 .container canvas
 {
     margin: auto;
+    margin-bottom: 25px;
     width: 85%;
     height: auto;
     border: 2 px double rgb(255, 255, 255);
     
 }
+.control
+{
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+    align-items: center;
+}
 
+.endWords 
+{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    align-items: center;
+}
+.endWords p
+{
+    font-size: 15pt; 
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(254, 183, 29);
+    font-style: oblique;
+}
+
+.controlImage
+{
+    width: 100% ;
+}
+.controlImage img
+{
+    width: 100% ;
+}
 .Logo
 {
     width: 150px ;
@@ -94,15 +125,12 @@
 
 .footer
 {
- 
+    width: 90%;
     padding-left: 30pt;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    float: left;
-    flex-grow: 20;
-    align-items: center;
-    
+    justify-content: flex-end;
+    flex-grow: 20; 
 }
 
 .footercopyrights
@@ -115,6 +143,7 @@
 
 .footercopyrights p
 {
-  color: aliceblue;
-  font-size: 20pt;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(63 56 81);
+    font-size: 20pt;
 }
