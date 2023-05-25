@@ -1,5 +1,5 @@
 class Coin {
-    constructor({centerPosition}) {
+    constructor({ centerPosition }) {
         this.position = {
             x: centerPosition.x - COIN_IMAGE_SIZE / 2,
             y: centerPosition.y - COIN_IMAGE_SIZE / 2
@@ -10,28 +10,28 @@ class Coin {
             left: centerPosition.x - this.width / 2,
             right: centerPosition.x + this.width / 2,
             top: centerPosition.y - this.width / 2,
-            bottom: centerPosition.y + this. height / 2,
+            bottom: centerPosition.y + this.height / 2,
         }
         this.sprite = new Sprite({
-            position: this.position, 
+            position: this.position,
             imageSrc: COIN_IMAGE_SRC
         })
         this.collected = false
     }
-    checkIntersction({sides}) {
-        return ((sides.top < this.sides.bottom) && 
-            (sides.bottom > this.sides.top)  && 
-            (sides.left < this.sides.right)   && 
+    checkIntersction({ sides }) {
+        return ((sides.top < this.sides.bottom) &&
+            (sides.bottom > this.sides.top) &&
+            (sides.left < this.sides.right) &&
             (sides.right > this.sides.left))
     }
     draw() {
-        if (!this.collected){
+        if (!this.collected) {
             this.sprite.draw()
         }
     }
-    tryCollect({player}) {
+    tryCollect({ player }) {
         if (!this.collected) {
-            if (this.checkIntersction({sides: player.sides})) {
+            if (this.checkIntersction({ sides: player.sides })) {
                 if (IS_DEBUG) {
                     console.log('Coin collected')
                 }

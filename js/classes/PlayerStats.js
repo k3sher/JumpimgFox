@@ -1,5 +1,5 @@
 class PlayerStats {
-    constructor({position, player}) {
+    constructor({ position, player }) {
         this.position = {
             x: position.x,
             y: position.y
@@ -17,18 +17,18 @@ class PlayerStats {
             position: {
                 x: this.position.x + this.relativeCoinImagePosition.x,
                 y: this.position.y + this.relativeCoinImagePosition.y
-            }, 
+            },
             imageSrc: COIN_IMAGE_SRC
         })
         this.backgroundSprite = new Sprite({
             position: {
                 x: this.position.x,
                 y: this.position.y
-            }, 
+            },
             imageSrc: STATS_BACKGROUND_SRC
         })
     }
-    updatePosition({position}) {
+    updatePosition({ position }) {
         this.position = {
             x: position.x,
             y: position.y
@@ -50,8 +50,8 @@ class PlayerStats {
         c.font = STATS_TEXT_FONT
         c.fillStyle = STATS_TEXT_COLOR
         c.fillText(
-            this.player.collectedCoins, 
-            this.position.x + this.relativeCoinTextPosition.x, 
+            this.player.collectedCoins,
+            this.position.x + this.relativeCoinTextPosition.x,
             this.position.y + this.relativeCoinTextPosition.y
         );
     }

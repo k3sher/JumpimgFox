@@ -1,5 +1,5 @@
 class Sprite {
-    constructor({position, imageSrc, frameRate = 1, frameDelay = 3, scale = 1}) {
+    constructor({ position, imageSrc, frameRate = 1, frameDelay = 3, scale = 1 }) {
         this.position = position
         this.frameDelay = frameDelay
         this.frameRate = frameRate
@@ -7,26 +7,26 @@ class Sprite {
         this.loaded = false
         this.image = new Image()
         this.image.onload = () => {
-          this.width = (this.image.width / this.frameRate) * this.scale
-          this.height = this.image.height * this.scale
-          this.loaded = true
+            this.width = (this.image.width / this.frameRate) * this.scale
+            this.height = this.image.height * this.scale
+            this.loaded = true
         }
         this.image.src = imageSrc
         this.currentTic = 0
         this.currentFrame = 0
     }
-    updatePosition({position}) {
+    updatePosition({ position }) {
         this.position = position
     }
     getFrameBox() {
         return {
             position: {
-              x: this.currentFrame * (this.image.width / this.frameRate),
-              y: 0,
+                x: this.currentFrame * (this.image.width / this.frameRate),
+                y: 0,
             },
             width: this.image.width / this.frameRate,
             height: this.image.height,
-          }
+        }
     }
     draw() {
         if (!this.image) return
@@ -45,7 +45,7 @@ class Sprite {
             this.height
         )
     }
-    drawWithTransparentAlpha({alpha}) {
+    drawWithTransparentAlpha({ alpha }) {
         if (!this.image) return
         if (alpha >= 1) {
             this.draw()

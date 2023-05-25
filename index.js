@@ -23,7 +23,7 @@ levelInfo.collisions.forEach((symbol, pos) => {
                     y: (pos - pos % levelInfo.width) / levelInfo.width * levelInfo.tileSize
                 },
                 tileSize: levelInfo.tileSize
-                }
+            }
             )
         )
     }
@@ -41,7 +41,7 @@ for (let i = 0; i < levelInfo.secretRoomsIds.length; i++) {
                         y: (pos - pos % levelInfo.width) / levelInfo.width * levelInfo.tileSize
                     },
                     tileSize: levelInfo.tileSize
-                    }
+                }
                 )
             )
         }
@@ -61,7 +61,7 @@ for (let i = 0; i < levelInfo.secretRoomsIds.length; i++) {
                     y: 0,
                 },
                 imageSrc: levelInfo.secretRoomsSrc[i].background,
-            }), 
+            }),
             areaBlocks: areaBlocks
         })
     )
@@ -127,22 +127,22 @@ function key_processing() {
 
 function animate() {
     window.requestAnimationFrame(animate)
-    c.clearRect(0,0,canvas.width,canvas.height)
+    c.clearRect(0, 0, canvas.width, canvas.height)
     c.fillStyle = 'white'
-    c.fillRect(0,0,canvas.width,canvas.height)
+    c.fillRect(0, 0, canvas.width, canvas.height)
     c.save()
     c.scale(CANVAS_SCALE, CANVAS_SCALE)
     c.translate(-camera.position.x, -camera.position.y)
-    playerStats.updatePosition({position: camera.position})
+    playerStats.updatePosition({ position: camera.position })
     backgroundTestLevel.draw()
     player.update()
     coins.forEach(coin => {
-        coin.tryCollect({player: player})
+        coin.tryCollect({ player: player })
         coin.draw()
     })
-    player.updateCameraByPlayerCameraBox({canvas: canvas, camera: camera, levelSizes: levelSizes})
+    player.updateCameraByPlayerCameraBox({ canvas: canvas, camera: camera, levelSizes: levelSizes })
     secretRooms.forEach(area => {
-        area.updateAlpha({playerSides: player.sides})
+        area.updateAlpha({ playerSides: player.sides })
         area.drawBackground()
     })
     player.draw()

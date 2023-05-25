@@ -1,5 +1,5 @@
 class Player {
-    constructor({position, animationInfo, CollisionBlocks}) {
+    constructor({ position, animationInfo, CollisionBlocks }) {
         this.position = {
             x: position.x,
             y: position.y
@@ -24,7 +24,7 @@ class Player {
         for (let state in this.animationInfo.statesAssets) {
             this.animations[state] = {}
             for (let facing in this.animationInfo.statesAssets[state])
-                this.animations[state][facing] = new Sprite ({
+                this.animations[state][facing] = new Sprite({
                     position: this.getImagePosition(),
                     imageSrc: this.animationInfo.statesAssets[state][facing].assetImgSrc,
                     frameRate: this.animationInfo.statesAssets[state][facing].frameRate,
@@ -33,9 +33,9 @@ class Player {
                 })
         }
 
-        this.width = (this.animationInfo.frameWidth - (this.animationInfo.hitboxMargin.fromLeft + 
+        this.width = (this.animationInfo.frameWidth - (this.animationInfo.hitboxMargin.fromLeft +
             this.animationInfo.hitboxMargin.fromRight)) * this.animationInfo.scale
-        this.height = (this.animationInfo.frameHeight - (this.animationInfo.hitboxMargin.fromTop + 
+        this.height = (this.animationInfo.frameHeight - (this.animationInfo.hitboxMargin.fromTop +
             this.animationInfo.hitboxMargin.fromBottom)) * this.animationInfo.scale
         this.sides = {
             bottom: this.position.y + this.height,
@@ -74,8 +74,8 @@ class Player {
             position: {
                 x: this.position.x,
                 y: this.position.y
-            }, 
-            sides:{
+            },
+            sides: {
                 bottom: this.position.y + 80,
                 top: this.position.y,
                 left: this.position.x,
@@ -165,19 +165,19 @@ class Player {
             this.sides = this.getSides(this.position)
             this.collectNearestCollisionBlocks()
             if (this.nearestCollisionBlockTimeX == this.nearestCollisionBlockTimeY && this.nearestCollisionBlocksX.length == 1 && this.nearestCollisionBlocksY.length == 1) {
-                this.checkAngleCollision({collisionBlock: this.nearestCollisionBlocksX[0]})
+                this.checkAngleCollision({ collisionBlock: this.nearestCollisionBlocksX[0] })
             } else if ((this.nearestCollisionBlockTimeX < this.nearestCollisionBlockTimeY) && this.nearestCollisionBlocksX.length != 0 && this.velocity.x != 0) {
                 this.nearestCollisionBlocksX.forEach((collisionItem) => {
-                    this.checkXCollision({collisionBlock: collisionItem})
+                    this.checkXCollision({ collisionBlock: collisionItem })
                     this.newSides = this.getSides(this.newPosition)
                 })
-            } 
+            }
             else if ((this.nearestCollisionBlocksY.length != 0) && this.velocity.y != 0) {
                 this.nearestCollisionBlocksY.forEach((collisionItem) => {
-                    this.checkYCollision({collisionBlock: collisionItem})
+                    this.checkYCollision({ collisionBlock: collisionItem })
                     this.newSides = this.getSides(this.newPosition)
                 })
-            } 
+            }
             else {
                 break
             }
@@ -185,7 +185,7 @@ class Player {
     }
 
     yFunc(t, startY) {
-        return startY + this.velocity.y * t + this.acceleration.y * t * (t+1) / 2
+        return startY + this.velocity.y * t + this.acceleration.y * t * (t + 1) / 2
     }
     xFunc(t, startX) {
         return startX + this.velocity.x * t
@@ -195,18 +195,24 @@ class Player {
     }
     calcIntersectionTimeByY(startY, collisionY) {
         if (this.acceleration.y == 0) {
-            return {t1: (collisionY - startY) / this.velocity.y,
-                    t2: (collisionY - startY) / this.velocity.y}
+            return {
+                t1: (collisionY - startY) / this.velocity.y,
+                t2: (collisionY - startY) / this.velocity.y
+            }
         }
-        let D = (this.velocity.y + this.acceleration.y / 2) * (this.velocity.y + this.acceleration.y / 2) - 
+        let D = (this.velocity.y + this.acceleration.y / 2) * (this.velocity.y + this.acceleration.y / 2) -
             2 * this.acceleration.y * (collisionY - startY)
         if (D <= 0) {
-            return {t1: 2,
-                    t2: 2}
+            return {
+                t1: 2,
+                t2: 2
+            }
         }
         let sqrtD = Math.sqrt(D)
-        return {t1: (this.velocity.y + this.acceleration.y / 2 - sqrtD) / this.acceleration.y,
-                t2: (this.velocity.y + this.acceleration.y / 2 + sqrtD) / this.acceleration.y}
+        return {
+            t1: (this.velocity.y + this.acceleration.y / 2 - sqrtD) / this.acceleration.y,
+            t2: (this.velocity.y + this.acceleration.y / 2 + sqrtD) / this.acceleration.y
+        }
 
     }
     collectNearestCollisionBlocks() {
@@ -216,17 +222,19 @@ class Player {
         this.nearestCollisionBlockTimeY = this.collisionTime
         this.newSides = this.getSides(this.newPosition)
         this.CollisionBlocks.forEach((collisionItem) => {
-            this.checkNearestCollisionBlock({collisionBlock: collisionItem})
+            this.checkNearestCollisionBlock({ collisionBlock: collisionItem })
         })
         if (IS_DEBUG) {
             this.nearestCollisionBlocksX.forEach((collisionBlock) => {
-                collisionBlock.draw({style: 'rgba(255, 0, 0, 0.5)'})})
+                collisionBlock.draw({ style: 'rgba(255, 0, 0, 0.5)' })
+            })
             this.nearestCollisionBlocksY.forEach((collisionBlock) => {
-                collisionBlock.draw({style: 'rgba(0, 0, 255, 0.5)'})})
+                collisionBlock.draw({ style: 'rgba(0, 0, 255, 0.5)' })
+            })
         }
     }
-    checkNearestCollisionBlock({collisionBlock}) {
-        if (collisionBlock.checkIntersction({sides: this.sides, newSides: this.newSides})) {
+    checkNearestCollisionBlock({ collisionBlock }) {
+        if (collisionBlock.checkIntersction({ sides: this.sides, newSides: this.newSides })) {
             if (!collisionBlock.checkedX) {
                 let collisionTimeX = this.collisionTime
                 if (this.velocity.x > 0) {
@@ -235,7 +243,7 @@ class Player {
                     if ((lct >= 0) && (lct <= this.newPositionTime) && (lct < collisionTimeX)) {
                         collisionTimeX = lct
                     }
-                } 
+                }
                 else if (this.velocity.x < 0) {
                     let lct = this.calcIntersectionTimeByX(
                         this.sides.left, collisionBlock.sides.right)
@@ -257,7 +265,7 @@ class Player {
                         this.sides.top, collisionBlock.sides.bottom)
                     if ((lct.t1 >= 0) && (lct.t1 <= this.newPositionTime) && (lct.t1 < collisionTimeY)) {
                         collisionTimeY = lct.t1
-                    } 
+                    }
                     else if ((lct.t2 >= 0) && (lct.t2 <= this.newPositionTime) && (lct.t2 < collisionTimeY)) {
                         collisionTimeY = lct.t2
                     }
@@ -267,7 +275,7 @@ class Player {
                         this.sides.bottom, collisionBlock.sides.top)
                     if ((lct.t1 >= 0) && (lct.t1 <= this.newPositionTime) && (lct.t1 < collisionTimeY)) {
                         collisionTimeY = lct.t1
-                    } 
+                    }
                     else if ((lct.t2 >= 0) && (lct.t2 <= this.newPositionTime) && (lct.t2 < collisionTimeY)) {
                         collisionTimeY = lct.t2
                     }
@@ -281,9 +289,9 @@ class Player {
             }
         }
     }
-    checkAngleCollision({collisionBlock}) {
+    checkAngleCollision({ collisionBlock }) {
         if (this.velocity.y < 0) {
-            
+
             if (this.velocity.x > 0) {
                 this.position.x = collisionBlock.sides.left - this.width
                 this.newPosition.x = this.position.x
@@ -299,11 +307,11 @@ class Player {
         }
 
     }
-    checkXCollision({collisionBlock}) {
+    checkXCollision({ collisionBlock }) {
         let collisionTime = this.nearestCollisionBlockTimeX
         if (this.velocity.x > 0) {
-            if ((this.yFunc(collisionTime, this.sides.bottom) > collisionBlock.sides.top) && 
-            (this.yFunc(collisionTime, this.sides.top) < collisionBlock.sides.bottom)) {
+            if ((this.yFunc(collisionTime, this.sides.bottom) > collisionBlock.sides.top) &&
+                (this.yFunc(collisionTime, this.sides.top) < collisionBlock.sides.bottom)) {
                 this.position.x = collisionBlock.sides.left - this.width
                 this.newPosition.x = this.position.x
                 this.velocity.x = 0
@@ -313,8 +321,8 @@ class Player {
             }
         }
         else if (this.velocity.x < 0) {
-            if ((this.yFunc(collisionTime, this.sides.bottom) > collisionBlock.sides.top) && 
-            (this.yFunc(collisionTime, this.sides.top) < collisionBlock.sides.bottom)) {
+            if ((this.yFunc(collisionTime, this.sides.bottom) > collisionBlock.sides.top) &&
+                (this.yFunc(collisionTime, this.sides.top) < collisionBlock.sides.bottom)) {
                 this.position.x = collisionBlock.sides.right
                 this.newPosition.x = this.position.x
                 this.velocity.x = 0
@@ -324,11 +332,11 @@ class Player {
             }
         }
     }
-    checkYCollision({collisionBlock}) {
+    checkYCollision({ collisionBlock }) {
         let collisionTime = this.nearestCollisionBlockTimeY
         if (this.velocity.y < 0) {
-            if ((this.xFunc(collisionTime, this.sides.left) < collisionBlock.sides.right) && 
-            (this.xFunc(collisionTime, this.sides.right) > collisionBlock.sides.left)) {
+            if ((this.xFunc(collisionTime, this.sides.left) < collisionBlock.sides.right) &&
+                (this.xFunc(collisionTime, this.sides.right) > collisionBlock.sides.left)) {
                 this.position.y = collisionBlock.sides.bottom
                 this.newPosition.y = this.position.y
                 this.velocity.y = 0
@@ -337,8 +345,8 @@ class Player {
             }
         }
         else if (this.velocity.y > 0) {
-            if ((this.xFunc(collisionTime, this.sides.left) < collisionBlock.sides.right) && 
-            (this.xFunc(collisionTime, this.sides.right) > collisionBlock.sides.left)) {
+            if ((this.xFunc(collisionTime, this.sides.left) < collisionBlock.sides.right) &&
+                (this.xFunc(collisionTime, this.sides.right) > collisionBlock.sides.left)) {
                 this.position.y = collisionBlock.sides.top - this.height
                 this.newPosition.y = this.position.y
                 this.velocity.y = 0
@@ -363,7 +371,7 @@ class Player {
 
     updateState() {
         this.CollisionBlocks.forEach((collisionItem) => {
-            if (collisionItem.checkIntersctionWithBounds({sides: this.sides, newSides: this.sides})) {
+            if (collisionItem.checkIntersctionWithBounds({ sides: this.sides, newSides: this.sides })) {
                 if (this.sides.left < collisionItem.sides.right && this.sides.right > collisionItem.sides.left) {
                     if (this.sides.top == collisionItem.sides.bottom) {
                         this.state.top = true
@@ -390,20 +398,20 @@ class Player {
             this.acceleration.y = ON_WALL_ACCELARATION
             this.state.onWall = true
         } else
-        if ((this.state.left || this.state.right) && this.state.onWall && this.velocity.y >= 0) {
-            this.acceleration.y = ON_WALL_ACCELARATION
-        } else {
-            this.acceleration.y = DEFAULT_ACCELARATION
-            this.state.onWall = false
-        }
+            if ((this.state.left || this.state.right) && this.state.onWall && this.velocity.y >= 0) {
+                this.acceleration.y = ON_WALL_ACCELARATION
+            } else {
+                this.acceleration.y = DEFAULT_ACCELARATION
+                this.state.onWall = false
+            }
     }
 
     updatecameraBox() {
         this.cameraBox = {
             position: {
-                x: this.position.x - (this.cameraBox.width - this.width)/2,
-                y: this.position.y - (this.cameraBox.height - this.height)/2,
-            }, 
+                x: this.position.x - (this.cameraBox.width - this.width) / 2,
+                y: this.position.y - (this.cameraBox.height - this.height) / 2,
+            },
             sides: this.cameraBox.sides,
             width: this.cameraBox.width,
             height: this.cameraBox.height
@@ -414,7 +422,7 @@ class Player {
             left: this.cameraBox.position.x,
             right: this.cameraBox.position.x + this.cameraBox.width,
         }
-        if (IS_DEBUG){
+        if (IS_DEBUG) {
             this.drawCameraBox()
         }
     }
@@ -429,9 +437,9 @@ class Player {
         )
     }
 
-    updateCameraByPlayerCameraBox({canvas, camera, levelSizes}) {
-        if (this.cameraBox.sides.right > camera.position.x + canvas.width/CANVAS_SCALE) {
-            camera.position.x = this.cameraBox.sides.right - canvas.width/CANVAS_SCALE
+    updateCameraByPlayerCameraBox({ canvas, camera, levelSizes }) {
+        if (this.cameraBox.sides.right > camera.position.x + canvas.width / CANVAS_SCALE) {
+            camera.position.x = this.cameraBox.sides.right - canvas.width / CANVAS_SCALE
         }
         if (this.cameraBox.sides.left < camera.position.x) {
             camera.position.x = this.cameraBox.sides.left
@@ -439,21 +447,21 @@ class Player {
         if (this.cameraBox.sides.top < camera.position.y) {
             camera.position.y = this.cameraBox.sides.top
         }
-        if (this.cameraBox.sides.bottom > canvas.height/CANVAS_SCALE + camera.position.y) {
-            camera.position.y = this.cameraBox.sides.bottom - canvas.height/CANVAS_SCALE
+        if (this.cameraBox.sides.bottom > canvas.height / CANVAS_SCALE + camera.position.y) {
+            camera.position.y = this.cameraBox.sides.bottom - canvas.height / CANVAS_SCALE
         }
 
         if (camera.position.x < 0) {
             camera.position.x = 0
         }
-        if (camera.position.x + canvas.width/CANVAS_SCALE > levelSizes.width) {
-            camera.position.x = levelSizes.width - canvas.width/CANVAS_SCALE
+        if (camera.position.x + canvas.width / CANVAS_SCALE > levelSizes.width) {
+            camera.position.x = levelSizes.width - canvas.width / CANVAS_SCALE
         }
         if (camera.position.y < 0) {
             camera.position.y = 0
         }
-        if (camera.position.y + canvas.height/CANVAS_SCALE > levelSizes.height) {
-            camera.position.y = levelSizes.height - canvas.height/CANVAS_SCALE
+        if (camera.position.y + canvas.height / CANVAS_SCALE > levelSizes.height) {
+            camera.position.y = levelSizes.height - canvas.height / CANVAS_SCALE
         }
     }
 
@@ -476,9 +484,9 @@ class Player {
             this.animationState.facing = 'left'
         } else if (this.velocity.y > 0) {
             this.animationState.action = 'falling'
-        } else if(this.velocity.y < 0) {
+        } else if (this.velocity.y < 0) {
             this.animationState.action = 'jumping'
-        } else if(this.velocity.y == 0) {
+        } else if (this.velocity.y == 0) {
             this.animationState.action = this.animationState.action
         } else {
             console.log(this.velocity)
@@ -501,7 +509,7 @@ class Player {
         this.updatecameraBox()
         this.updateAnimationState()
         // console.log(this.previousAnimationState.action, this.previousAnimationState.facing, this.animationState.action, this.animationState.facing)
-        
+
         // console.log(this.state.onWall)
         this.newPositionTimeX = 1
         this.newPositionTimeY = 1
@@ -510,8 +518,8 @@ class Player {
     draw() {
         if (this.animationState.action in this.animations) {
             if (this.animationState.facing in this.animations[this.animationState.action]) {
-                this.animations[this.animationState.action][this.animationState.facing].updatePosition({position: this.getImagePosition()})
-                if (this.previousAnimationState.action == this.animationState.action && 
+                this.animations[this.animationState.action][this.animationState.facing].updatePosition({ position: this.getImagePosition() })
+                if (this.previousAnimationState.action == this.animationState.action &&
                     this.previousAnimationState.facing == this.animationState.facing) {
                     this.animations[this.animationState.action][this.animationState.facing].update()
                 } else {
@@ -527,7 +535,7 @@ class Player {
             c.fillStyle = this.style;
             c.fillRect(this.position.x, this.position.y, this.width, this.height);
         }
-        
+
         this.previousAnimationState = {
             action: this.animationState.action,
             facing: this.animationState.facing
