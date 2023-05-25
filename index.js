@@ -97,8 +97,7 @@ const y = canvas.height / 2
 
 const player = new Player({
     position: levelInfo.startPosition,
-    width: 16,
-    height: 16,
+    animationInfo: playerAnimationInfo,
     CollisionBlocks: CollisionBlocks
 })
 

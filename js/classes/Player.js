@@ -1,5 +1,5 @@
 class Player {
-    constructor({position, width, height, CollisionBlocks}) {
+    constructor({position, animationInfo, CollisionBlocks}) {
         this.position = {
             x: position.x,
             y: position.y
@@ -18,8 +18,25 @@ class Player {
             x: 0,
             y: DEFAULT_ACCELARATION
         }
-        this.width = width
-        this.height = height
+        this.animationInfo = animationInfo
+
+        this.animations = {}
+        for (let state in this.animationInfo.statesAssets) {
+            this.animations[state] = {}
+            for (let facing in this.animationInfo.statesAssets[state])
+                this.animations[state][facing] = new Sprite ({
+                    position: this.getImagePosition(),
+                    imageSrc: this.animationInfo.statesAssets[state][facing].assetImgSrc,
+                    frameRate: this.animationInfo.statesAssets[state][facing].frameRate,
+                    frameDelay: this.animationInfo.statesAssets[state][facing].frameDelay,
+                    scale: this.animationInfo.scale
+                })
+        }
+
+        this.width = (this.animationInfo.frameWidth - (this.animationInfo.hitboxMargin.fromLeft + 
+            this.animationInfo.hitboxMargin.fromRight)) * this.animationInfo.scale
+        this.height = (this.animationInfo.frameHeight - (this.animationInfo.hitboxMargin.fromTop + 
+            this.animationInfo.hitboxMargin.fromBottom)) * this.animationInfo.scale
         this.sides = {
             bottom: this.position.y + this.height,
             top: this.position.y,
@@ -44,6 +61,14 @@ class Player {
             rightPush: false,
             onWall: false
         }
+        this.animationState = {
+            action: 'standing',
+            facing: 'right'
+        }
+        this.previousAnimationState = {
+            action: this.animationState.action,
+            facing: this.animationState.facing
+        }
 
         this.cameraBox = {
             position: {
@@ -61,7 +86,12 @@ class Player {
         }
         this.collectedCoins = 0
     }
-
+    getImagePosition() {
+        return {
+            x: this.position.x - this.animationInfo.hitboxMargin.fromLeft * this.animationInfo.scale,
+            y: this.position.y - this.animationInfo.hitboxMargin.fromTop * this.animationInfo.scale
+        }
+    }
     jump() {
         if (this.state.bottom) {
             this.velocity.y = JUMP_VELOCITY
@@ -70,6 +100,7 @@ class Player {
     }
 
     walkRight() {
+        this.animationState.facing = 'right'
         // if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
         if (!this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
@@ -78,6 +109,7 @@ class Player {
     }
 
     walkLeft() {
+        this.animationState.facing = 'left'
         // if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
         if (!this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
@@ -426,6 +458,35 @@ class Player {
     }
 
 
+    updateAnimationState() {
+        // if (this.velocity.x > 0) {
+        //     this.facing = 'right'
+        // } else if (this.velocity.x < 0) {
+        //     this.facing = 'left'
+        // }
+        if (this.state.bottom && this.velocity.x == 0 && this.velocity.y == 0) {
+            this.animationState.action = 'standing'
+        } else if (this.state.bottom && this.velocity.x != 0 && this.velocity.y == 0) {
+            this.animationState.action = 'moving'
+        } else if (this.state.left && this.state.onWall && this.velocity.y > 0) {
+            this.animationState.action = 'wallSliding'
+            this.animationState.facing = 'right'
+        } else if (this.state.right && this.state.onWall && this.velocity.y > 0) {
+            this.animationState.action = 'wallSliding'
+            this.animationState.facing = 'left'
+        } else if (this.velocity.y > 0) {
+            this.animationState.action = 'falling'
+        } else if(this.velocity.y < 0) {
+            this.animationState.action = 'jumping'
+        } else if(this.velocity.y == 0) {
+            this.animationState.action = this.animationState.action
+        } else {
+            console.log(this.velocity)
+            this.animationState.action = '???'
+        }
+    }
+
+
     update() {
         this.updateAcceleration()
         this.calculateNewPosition()
@@ -438,6 +499,8 @@ class Player {
         }
         this.updateState()
         this.updatecameraBox()
+        this.updateAnimationState()
+        // console.log(this.previousAnimationState.action, this.previousAnimationState.facing, this.animationState.action, this.animationState.facing)
         
         // console.log(this.state.onWall)
         this.newPositionTimeX = 1
@@ -445,7 +508,29 @@ class Player {
     }
 
     draw() {
-        c.fillStyle = this.style;
-        c.fillRect(this.position.x, this.position.y, this.width, this.height);
+        if (this.animationState.action in this.animations) {
+            if (this.animationState.facing in this.animations[this.animationState.action]) {
+                this.animations[this.animationState.action][this.animationState.facing].updatePosition({position: this.getImagePosition()})
+                if (this.previousAnimationState.action == this.animationState.action && 
+                    this.previousAnimationState.facing == this.animationState.facing) {
+                    this.animations[this.animationState.action][this.animationState.facing].update()
+                } else {
+                    // console.log('reset')
+                    this.animations[this.animationState.action][this.animationState.facing].resetAnimation()
+                }
+                this.animations[this.animationState.action][this.animationState.facing].draw()
+            } else {
+                c.fillStyle = this.style;
+                c.fillRect(this.position.x, this.position.y, this.width, this.height);
+            }
+        } else {
+            c.fillStyle = this.style;
+            c.fillRect(this.position.x, this.position.y, this.width, this.height);
+        }
+        
+        this.previousAnimationState = {
+            action: this.animationState.action,
+            facing: this.animationState.facing
+        }
     }
 }

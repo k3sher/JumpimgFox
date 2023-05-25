@@ -402,3 +402,6 @@ src/maps/tiles/
 
 # Проект Tiled для карты
 src/maps/CastleMapProject/
+
+# исходные файлы анимаций
+*.aseprite
