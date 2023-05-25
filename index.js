@@ -8,7 +8,7 @@ const camera = {
 }
 
 canvas.width = 960
-canvas.height = 720
+canvas.height = 480
 
 let levelInfo = testCastleLevelInfo
 
@@ -20,12 +20,45 @@ levelInfo.collisions.forEach((symbol, pos) => {
             new CollisionBlock({
                 position: {
                     x: pos % levelInfo.width * levelInfo.tileSize,
-                    y: (pos - pos % levelInfo.width) / levelInfo.width * levelInfo.tileSize}
+                    y: (pos - pos % levelInfo.width) / levelInfo.width * levelInfo.tileSize
+                },
+                tileSize: levelInfo.tileSize
                 }
             )
         )
     }
 })
+
+const secretRooms = []
+for (let i = 0; i < levelInfo.secretRoomsIds.length; i++) {
+    let areaBlocks = []
+    levelInfo.areas.forEach((symbol, pos) => {
+        if (symbol == levelInfo.secretRoomsIds[i]) {
+            areaBlocks.push(
+                new AreaBlock({
+                    position: {
+                        x: pos % levelInfo.width * levelInfo.tileSize,
+                        y: (pos - pos % levelInfo.width) / levelInfo.width * levelInfo.tileSize
+                    },
+                    tileSize: levelInfo.tileSize
+                    }
+                )
+            )
+        }
+    })
+    secretRooms.push(
+        new Area({
+            areaSprite: new Sprite({
+                position: {
+                    x: 0,
+                    y: 0,
+                },
+                imageSrc: levelInfo.secretRoomsSrc[i],
+            }), 
+            areaBlocks: areaBlocks
+        })
+    )
+}
 
 const levelSizes = {
     width: levelInfo.width * levelInfo.tileSize,
@@ -83,6 +116,7 @@ function animate() {
     // CollisionBlocks.forEach((block) => {block.draw()})
     player.update()
     player.updateCameraByPlayerCameraBox({canvas: canvas, camera: camera, levelSizes: levelSizes})
+    secretRooms.forEach(area => {area.draw({playerSides: player.sides})})
     player.draw()
     key_processing()
     c.restore()

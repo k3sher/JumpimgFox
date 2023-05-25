@@ -1,8 +1,8 @@
 class CollisionBlock {
-    constructor({position}) {
+    constructor({position, tileSize}) {
         this.position = position
-        this.width = 16
-        this.height = 16
+        this.width = tileSize
+        this.height = tileSize
         this.sides = {
             left: this.position.x,
             right: this.position.x + this.width,

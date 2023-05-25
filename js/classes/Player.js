@@ -56,7 +56,7 @@ class Player {
                 left: this.position.x,
                 right: this.position.x + 200,
             },
-            width: 100,
+            width: 200,
             height: 80
         }
     }
@@ -126,7 +126,6 @@ class Player {
             this.collectNearestCollisionBlocks()
             if (this.nearestCollisionBlockTimeX == this.nearestCollisionBlockTimeY && this.nearestCollisionBlocksX.length == 1 && this.nearestCollisionBlocksY.length == 1) {
                 this.checkAngleCollision({collisionBlock: this.nearestCollisionBlocksX[0]})
-                console.log('angle')
             } else if ((this.nearestCollisionBlockTimeX < this.nearestCollisionBlockTimeY) && this.nearestCollisionBlocksX.length != 0 && this.velocity.x != 0) {
                 this.nearestCollisionBlocksX.forEach((collisionItem) => {
                     this.checkXCollision({collisionBlock: collisionItem})

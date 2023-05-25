@@ -7,4 +7,4 @@ ON_WALL_ACCELARATION = 0.1
 
 CANVAS_SCALE = 3
 
-IS_DEBUG = true
+IS_DEBUG = false
