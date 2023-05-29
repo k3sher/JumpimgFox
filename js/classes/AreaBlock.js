@@ -10,12 +10,14 @@ class AreaBlock {
             bottom: this.position.y + this.height,
         }
     }
+
     checkIntersction({ sides }) {
         return ((sides.top < this.sides.bottom) &&
             (sides.bottom > this.sides.top) &&
             (sides.left < this.sides.right) &&
             (sides.right > this.sides.left))
     }
+
     calcIntersection({ sides }) {
         if (this.checkIntersction({ sides: sides })) {
             const intersectionWidth = Math.min(sides.right, this.sides.right) - Math.max(sides.left, this.sides.left)

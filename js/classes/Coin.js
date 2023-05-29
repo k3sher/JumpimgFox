@@ -18,17 +18,20 @@ class Coin {
         })
         this.collected = false
     }
+
     checkIntersction({ sides }) {
         return ((sides.top < this.sides.bottom) &&
             (sides.bottom > this.sides.top) &&
             (sides.left < this.sides.right) &&
             (sides.right > this.sides.left))
     }
+
     draw() {
         if (!this.collected) {
             this.sprite.draw()
         }
     }
+
     tryCollect({ player }) {
         if (!this.collected) {
             if (this.checkIntersction({ sides: player.sides })) {

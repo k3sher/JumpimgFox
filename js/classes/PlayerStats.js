@@ -28,6 +28,7 @@ class PlayerStats {
             imageSrc: STATS_BACKGROUND_SRC
         })
     }
+
     updatePosition({ position }) {
         this.position = {
             x: position.x,
@@ -46,6 +47,7 @@ class PlayerStats {
             }
         })
     }
+
     drawCoinsStats() {
         c.font = STATS_TEXT_FONT
         c.fillStyle = STATS_TEXT_COLOR
@@ -55,6 +57,7 @@ class PlayerStats {
             this.position.y + this.relativeCoinTextPosition.y
         );
     }
+
     draw() {
         this.backgroundSprite.draw()
         this.coinSprite.draw()

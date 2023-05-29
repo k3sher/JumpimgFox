@@ -15,9 +15,11 @@ class Sprite {
         this.currentTic = 0
         this.currentFrame = 0
     }
+
     updatePosition({ position }) {
         this.position = position
     }
+
     getFrameBox() {
         return {
             position: {
@@ -28,6 +30,7 @@ class Sprite {
             height: this.image.height,
         }
     }
+
     draw() {
         if (!this.image) return
 
@@ -45,6 +48,7 @@ class Sprite {
             this.height
         )
     }
+
     drawWithTransparentAlpha({ alpha }) {
         if (!this.image) return
         if (alpha >= 1) {
@@ -54,6 +58,7 @@ class Sprite {
         this.draw()
         c.globalAlpha = 1;
     }
+
     update() {
         this.currentTic++
         if (this.currentTic > this.frameDelay) {
@@ -65,6 +70,7 @@ class Sprite {
             }
         }
     }
+
     resetAnimation() {
         this.currentTic = 0
         this.currentFrame = 0

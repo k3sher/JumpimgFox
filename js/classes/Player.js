@@ -1,15 +1,11 @@
 class Player {
     constructor({ position, animationInfo, CollisionBlocks }) {
+        this.animationInfo = animationInfo
+        this.CollisionBlocks = CollisionBlocks
         this.position = {
             x: position.x,
             y: position.y
         }
-        this.newPosition = {
-            x: position.x,
-            y: position.y
-        }
-        this.newPositionTime = 1
-        this.jumpAvailable = false
         this.velocity = {
             x: 0,
             y: 0
@@ -18,7 +14,8 @@ class Player {
             x: 0,
             y: DEFAULT_ACCELARATION
         }
-        this.animationInfo = animationInfo
+
+        this.collectedCoins = 0
 
         this.animations = {}
         for (let state in this.animationInfo.statesAssets) {
@@ -43,15 +40,9 @@ class Player {
             left: this.position.x,
             right: this.position.x + this.width,
         }
-        this.newSides = this.sides
-        this.style = 'green'
 
-        this.collisionTime = 1
-        this.CollisionBlocks = CollisionBlocks
-        this.nearestCollisionBlocksX = []
-        this.nearestCollisionBlocksY = []
-        this.nearestCollisionBlockTimeX = Number.MAX_VALUE
-        this.nearestCollisionBlockTimeY = Number.MAX_VALUE
+        this.hitBoxStyle = 'rgba(0, 255, 0, 0.5)'
+        this.cameraBoxStyle = 'rgba(0, 0, 255, 0.1)'
         this.state = {
             top: false,
             bottom: false,
@@ -84,24 +75,35 @@ class Player {
             width: 200,
             height: 80
         }
-        this.collectedCoins = 0
+
+        this.collisionTime = 1
+        this.nearestCollisionBlocksX = []
+        this.nearestCollisionBlocksY = []
+        this.nearestCollisionBlockTimeX = Number.MAX_VALUE
+        this.nearestCollisionBlockTimeY = Number.MAX_VALUE
+        this.newPosition = {
+            x: position.x,
+            y: position.y
+        }
+        this.newPositionTime = 1
+        this.newSides = this.sides
     }
+
     getImagePosition() {
         return {
             x: this.position.x - this.animationInfo.hitboxMargin.fromLeft * this.animationInfo.scale,
             y: this.position.y - this.animationInfo.hitboxMargin.fromTop * this.animationInfo.scale
         }
     }
+
     jump() {
         if (this.state.bottom) {
             this.velocity.y = JUMP_VELOCITY
-            this.jumpAvailable = false
         }
     }
 
     walkRight() {
         this.animationState.facing = 'right'
-        // if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
         if (!this.state.bottom && !this.state.top && (this.state.left || this.state.leftPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
         }
@@ -110,7 +112,6 @@ class Player {
 
     walkLeft() {
         this.animationState.facing = 'left'
-        // if (this.state.onWall && !this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
         if (!this.state.bottom && !this.state.top && (this.state.right || this.state.rightPush)) {
             this.velocity.y = FROM_WALL_JUMP_VERTICAL_VELOCITY
         }
@@ -121,27 +122,31 @@ class Player {
         this.velocity.x = 0
     }
 
-    calculateNewPosition() {
-        this.newPosition.x += this.velocity.x
+    updateAcceleration() {
+        if ((this.state.leftPush || this.state.rightPush) && this.velocity.y >= 0) {
+            this.acceleration.y = ON_WALL_ACCELARATION
+            this.state.onWall = true
+        } else
+            if ((this.state.left || this.state.right) && this.state.onWall && this.velocity.y >= 0) {
+                this.acceleration.y = ON_WALL_ACCELARATION
+            } else {
+                this.acceleration.y = DEFAULT_ACCELARATION
+                this.state.onWall = false
+            }
+    }
+
+    updateVelocity() {
         this.velocity.y += this.acceleration.y
         if (this.state.onWall && (this.velocity.y > ON_WALL_MAX_FALL_SPEED)) {
             this.velocity.y = ON_WALL_MAX_FALL_SPEED
         } else if (!this.state.onWall && (this.velocity.y > DEFAULT_MAX_FALL_SPEED)) {
             this.velocity.y = DEFAULT_MAX_FALL_SPEED
         }
-        this.newPosition.y += this.velocity.y
-        // if (this.newPosition.x > canvas.width/CANVAS_SCALE - this.width) {
-        //     this.newPosition.x = canvas.width/CANVAS_SCALE - this.width
-        // } else if (this.newPosition.x < 0) {
-        //     this.newPosition.x = 0
-        // }
+    }
 
-        // if (this.sides.bottom + this.velocity.y < canvas.height/CANVAS_SCALE) {
-        // } else {
-        //     this.velocity.y = 0
-        //     this.newPosition.y = canvas.height/CANVAS_SCALE - this.height
-        //     this.jumpAvailable = true
-        // }
+    calculateNewPosition() {
+        this.newPosition.x += this.velocity.x
+        this.newPosition.y += this.velocity.y
     }
 
     getSides(position) {
@@ -187,12 +192,15 @@ class Player {
     yFunc(t, startY) {
         return startY + this.velocity.y * t + this.acceleration.y * t * (t + 1) / 2
     }
+
     xFunc(t, startX) {
         return startX + this.velocity.x * t
     }
+
     calcIntersectionTimeByX(startX, collisionX) {
         return (collisionX - startX) / this.velocity.x
     }
+
     calcIntersectionTimeByY(startY, collisionY) {
         if (this.acceleration.y == 0) {
             return {
@@ -215,6 +223,7 @@ class Player {
         }
 
     }
+
     collectNearestCollisionBlocks() {
         this.nearestCollisionBlocksX = []
         this.nearestCollisionBlocksY = []
@@ -233,6 +242,7 @@ class Player {
             })
         }
     }
+
     checkNearestCollisionBlock({ collisionBlock }) {
         if (collisionBlock.checkIntersction({ sides: this.sides, newSides: this.newSides })) {
             if (!collisionBlock.checkedX) {
@@ -289,6 +299,7 @@ class Player {
             }
         }
     }
+
     checkAngleCollision({ collisionBlock }) {
         if (this.velocity.y < 0) {
 
@@ -307,6 +318,7 @@ class Player {
         }
 
     }
+
     checkXCollision({ collisionBlock }) {
         let collisionTime = this.nearestCollisionBlockTimeX
         if (this.velocity.x > 0) {
@@ -332,6 +344,7 @@ class Player {
             }
         }
     }
+
     checkYCollision({ collisionBlock }) {
         let collisionTime = this.nearestCollisionBlockTimeY
         if (this.velocity.y < 0) {
@@ -350,10 +363,68 @@ class Player {
                 this.position.y = collisionBlock.sides.top - this.height
                 this.newPosition.y = this.position.y
                 this.velocity.y = 0
-                this.jumpAvailable = true
             } else {
                 collisionBlock.checkedY = true
             }
+        }
+    }
+
+    drawCameraBox() {
+        c.fillStyle = this.cameraBoxStyle
+        c.fillRect(
+            this.cameraBox.position.x,
+            this.cameraBox.position.y,
+            this.cameraBox.width,
+            this.cameraBox.height
+        )
+    }
+
+    updateCameraBox() {
+        this.cameraBox = {
+            position: {
+                x: this.position.x - (this.cameraBox.width - this.width) / 2,
+                y: this.position.y - (this.cameraBox.height - this.height) / 2,
+            },
+            sides: this.cameraBox.sides,
+            width: this.cameraBox.width,
+            height: this.cameraBox.height
+        }
+        this.cameraBox.sides = {
+            bottom: this.cameraBox.position.y + this.cameraBox.height,
+            top: this.cameraBox.position.y,
+            left: this.cameraBox.position.x,
+            right: this.cameraBox.position.x + this.cameraBox.width,
+        }
+        if (IS_DEBUG) {
+            this.drawCameraBox()
+        }
+    }
+
+    updateCameraByPlayerCameraBox({ canvas, camera, levelSizes }) {
+        if (this.cameraBox.sides.right > camera.position.x + canvas.width / CANVAS_SCALE) {
+            camera.position.x = this.cameraBox.sides.right - canvas.width / CANVAS_SCALE
+        }
+        if (this.cameraBox.sides.left < camera.position.x) {
+            camera.position.x = this.cameraBox.sides.left
+        }
+        if (this.cameraBox.sides.top < camera.position.y) {
+            camera.position.y = this.cameraBox.sides.top
+        }
+        if (this.cameraBox.sides.bottom > canvas.height / CANVAS_SCALE + camera.position.y) {
+            camera.position.y = this.cameraBox.sides.bottom - canvas.height / CANVAS_SCALE
+        }
+
+        if (camera.position.x < 0) {
+            camera.position.x = 0
+        }
+        if (camera.position.x + canvas.width / CANVAS_SCALE > levelSizes.width) {
+            camera.position.x = levelSizes.width - canvas.width / CANVAS_SCALE
+        }
+        if (camera.position.y < 0) {
+            camera.position.y = 0
+        }
+        if (camera.position.y + canvas.height / CANVAS_SCALE > levelSizes.height) {
+            camera.position.y = levelSizes.height - canvas.height / CANVAS_SCALE
         }
     }
 
@@ -390,88 +461,9 @@ class Player {
                 }
             }
         })
-
     }
-
-    updateAcceleration() {
-        if ((this.state.leftPush || this.state.rightPush) && this.velocity.y >= 0) {
-            this.acceleration.y = ON_WALL_ACCELARATION
-            this.state.onWall = true
-        } else
-            if ((this.state.left || this.state.right) && this.state.onWall && this.velocity.y >= 0) {
-                this.acceleration.y = ON_WALL_ACCELARATION
-            } else {
-                this.acceleration.y = DEFAULT_ACCELARATION
-                this.state.onWall = false
-            }
-    }
-
-    updatecameraBox() {
-        this.cameraBox = {
-            position: {
-                x: this.position.x - (this.cameraBox.width - this.width) / 2,
-                y: this.position.y - (this.cameraBox.height - this.height) / 2,
-            },
-            sides: this.cameraBox.sides,
-            width: this.cameraBox.width,
-            height: this.cameraBox.height
-        }
-        this.cameraBox.sides = {
-            bottom: this.cameraBox.position.y + this.cameraBox.height,
-            top: this.cameraBox.position.y,
-            left: this.cameraBox.position.x,
-            right: this.cameraBox.position.x + this.cameraBox.width,
-        }
-        if (IS_DEBUG) {
-            this.drawCameraBox()
-        }
-    }
-
-    drawCameraBox() {
-        c.fillStyle = 'rgba(0, 0, 255, 0.1)'
-        c.fillRect(
-            this.cameraBox.position.x,
-            this.cameraBox.position.y,
-            this.cameraBox.width,
-            this.cameraBox.height
-        )
-    }
-
-    updateCameraByPlayerCameraBox({ canvas, camera, levelSizes }) {
-        if (this.cameraBox.sides.right > camera.position.x + canvas.width / CANVAS_SCALE) {
-            camera.position.x = this.cameraBox.sides.right - canvas.width / CANVAS_SCALE
-        }
-        if (this.cameraBox.sides.left < camera.position.x) {
-            camera.position.x = this.cameraBox.sides.left
-        }
-        if (this.cameraBox.sides.top < camera.position.y) {
-            camera.position.y = this.cameraBox.sides.top
-        }
-        if (this.cameraBox.sides.bottom > canvas.height / CANVAS_SCALE + camera.position.y) {
-            camera.position.y = this.cameraBox.sides.bottom - canvas.height / CANVAS_SCALE
-        }
-
-        if (camera.position.x < 0) {
-            camera.position.x = 0
-        }
-        if (camera.position.x + canvas.width / CANVAS_SCALE > levelSizes.width) {
-            camera.position.x = levelSizes.width - canvas.width / CANVAS_SCALE
-        }
-        if (camera.position.y < 0) {
-            camera.position.y = 0
-        }
-        if (camera.position.y + canvas.height / CANVAS_SCALE > levelSizes.height) {
-            camera.position.y = levelSizes.height - canvas.height / CANVAS_SCALE
-        }
-    }
-
 
     updateAnimationState() {
-        // if (this.velocity.x > 0) {
-        //     this.facing = 'right'
-        // } else if (this.velocity.x < 0) {
-        //     this.facing = 'left'
-        // }
         if (this.state.bottom && this.velocity.x == 0 && this.velocity.y == 0) {
             this.animationState.action = 'standing'
         } else if (this.state.bottom && this.velocity.x != 0 && this.velocity.y == 0) {
@@ -494,9 +486,9 @@ class Player {
         }
     }
 
-
     update() {
         this.updateAcceleration()
+        this.updateVelocity()
         this.calculateNewPosition()
         this.resetState()
         this.checkCollisions()
@@ -505,14 +497,19 @@ class Player {
             x: this.newPosition.x,
             y: this.newPosition.y
         }
+        this.updateCameraBox()
         this.updateState()
-        this.updatecameraBox()
         this.updateAnimationState()
-        // console.log(this.previousAnimationState.action, this.previousAnimationState.facing, this.animationState.action, this.animationState.facing)
+    }
 
-        // console.log(this.state.onWall)
-        this.newPositionTimeX = 1
-        this.newPositionTimeY = 1
+    drawHitBox() {
+        c.fillStyle = this.hitBoxStyle
+        c.fillRect(
+            this.sides.left,
+            this.sides.top,
+            this.width,
+            this.height
+        )
     }
 
     draw() {
@@ -523,17 +520,18 @@ class Player {
                     this.previousAnimationState.facing == this.animationState.facing) {
                     this.animations[this.animationState.action][this.animationState.facing].update()
                 } else {
-                    // console.log('reset')
                     this.animations[this.animationState.action][this.animationState.facing].resetAnimation()
                 }
                 this.animations[this.animationState.action][this.animationState.facing].draw()
             } else {
-                c.fillStyle = this.style;
-                c.fillRect(this.position.x, this.position.y, this.width, this.height);
+                this.drawHitBox();
             }
         } else {
-            c.fillStyle = this.style;
-            c.fillRect(this.position.x, this.position.y, this.width, this.height);
+            this.drawHitBox();
+        }
+
+        if (IS_DEBUG) {
+            this.drawHitBox()
         }
 
         this.previousAnimationState = {
