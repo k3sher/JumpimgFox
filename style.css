@@ -1,3 +1,9 @@
+/* Общие для всех блоков стили по умолчанию */
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
 /* Задание рабочей области сайта */
 .container {
     display: flex;
@@ -128,7 +134,6 @@
 
 /* Блок с копирайт текстом */
 .footer-copyrights-text {
-    margin: 0;
     font-family: Arial, Helvetica, sans-serif;
     color: rgb(63 56 81);
     font-size: 20pt;
