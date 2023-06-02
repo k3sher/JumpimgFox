@@ -1,8 +1,4 @@
-* {
-    margin: 0;
-    box-sizing: border-box;
-}
-
+/* Задание рабочей области сайта */
 .container {
     display: flex;
     flex-direction: column;
@@ -16,6 +12,7 @@
     align-items: center;
 }
 
+/* Шапка сайта */
 .header {
     margin: 20px;
     width: 90%;
@@ -27,7 +24,8 @@
 
 }
 
-.centerheader {
+/* Блок по центру с внутренним центрированием по вертикали */
+.header-center {
     margin: auto;
     width: auto;
     display: flex;
@@ -38,6 +36,18 @@
     border-radius: 10px;
 }
 
+/* Размеры изображений логотипа и названия */
+.header-center-logo {
+    width: 150px;
+    height: 150px;
+}
+
+.header-center-logo-text {
+    width: 500px;
+    height: 125px;
+}
+
+/* Центральная часть сайта */
 .center {
     border-radius: 10px;
     width: 90%;
@@ -52,13 +62,8 @@
     background-color: rgb(63 56 81);
 }
 
-.center p {
-    font-size: 15pt;
-    font-family: Arial, Helvetica, sans-serif;
-    color: rgb(254, 183, 29);
-}
-
-.container canvas {
+/* Холст игровой области */
+.center-game-canvas-block {
     margin: auto;
     margin-bottom: 25px;
     width: 85%;
@@ -67,53 +72,43 @@
 
 }
 
-.control {
+/* Блок с изображением инструкции */
+.control-instruction-container {
     display: flex;
     flex-direction: column;
     margin: 10px;
     align-items: center;
 }
 
-.endWords {
+/* Настройка размеров изображения с инструкцией */
+.control-instruction-image {
+    width: 100%;
+}
+
+/* Стиль для текста с описанием игры */
+.game-description-text {
+    font-size: 15pt;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(254, 183, 29);
+}
+
+/* Заключительные слова */
+.end-words {
     display: flex;
     flex-direction: column;
     margin-top: 10px;
     align-items: center;
 }
 
-.endWords p {
+/* Стиль заключительных слов */
+.end-words-text {
     font-size: 15pt;
     font-family: Arial, Helvetica, sans-serif;
     color: rgb(254, 183, 29);
     font-style: oblique;
 }
 
-.controlImage {
-    width: 100%;
-}
-
-.controlImage img {
-    width: 100%;
-}
-
-.Logo {
-    width: 150px;
-    height: 150px;
-    background-repeat: no-repeat;
-    background-image: url('./src/images/pixil-frame-0.png');
-    background-size: 150px;
-}
-
-.Logo2 {
-    width: 500px;
-    height: 125px;
-    background-repeat: no-repeat;
-    background-image: url('./src/images/logo2.png');
-    background-size: 500px 125px;
-}
-
-
-
+/* Нижний колонтитул с выравниванием по правой стороне */
 .footer {
     width: 90%;
     padding-left: 30pt;
@@ -123,14 +118,16 @@
     flex-grow: 20;
 }
 
-.footercopyrights {
+/* Блок с копирайт текстом */
+.footer-copyrights {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
 }
 
-.footercopyrights p {
+/* Блок с копирайт текстом */
+.footer-copyrights-text {
     font-family: Arial, Helvetica, sans-serif;
     color: rgb(63 56 81);
     font-size: 20pt;
