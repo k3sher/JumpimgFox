@@ -1,4 +1,5 @@
 class Sprite {
+    // Инициализация объекта изображения или анимирования
     constructor({ position, imageSrc, frameRate = 1, frameDelay = 3, scale = 1 }) {
         this.position = position
         this.frameDelay = frameDelay
@@ -16,10 +17,12 @@ class Sprite {
         this.currentFrame = 0
     }
 
+    // Обновление текущей позиции изображения
     updatePosition({ position }) {
         this.position = position
     }
 
+    // Получение текущей отображаемой области
     getFrameBox() {
         return {
             position: {
@@ -31,6 +34,7 @@ class Sprite {
         }
     }
 
+    // Отображение необходимой картинки анимации  
     draw() {
         if (!this.image) return
 
@@ -49,6 +53,7 @@ class Sprite {
         )
     }
 
+    // Отображение картинки с прозрачностью
     drawWithTransparentAlpha({ alpha }) {
         if (!this.image) return
         if (alpha >= 1) {
@@ -59,6 +64,7 @@ class Sprite {
         c.globalAlpha = 1;
     }
 
+    // Обновление текущего кадра анимации
     update() {
         this.currentTic++
         if (this.currentTic > this.frameDelay) {
@@ -71,6 +77,7 @@ class Sprite {
         }
     }
 
+    // Сброс текущего кадра анимации к начальному
     resetAnimation() {
         this.currentTic = 0
         this.currentFrame = 0

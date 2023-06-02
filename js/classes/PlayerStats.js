@@ -1,10 +1,12 @@
 class PlayerStats {
+    // Инициализация объекта игровой статистики по объекту игрового персонажа и начальной позиции
     constructor({ position, player }) {
         this.position = {
             x: position.x,
             y: position.y
         }
         this.player = player
+        // Положения изображения монеты и текста, относительно position 
         this.relativeCoinImagePosition = {
             x: -8,
             y: -8
@@ -13,6 +15,7 @@ class PlayerStats {
             x: 20,
             y: 14
         }
+        // Объявление объектов изображений монеты и фона блока игровой статистики
         this.coinSprite = new Sprite({
             position: {
                 x: this.position.x + this.relativeCoinImagePosition.x,
@@ -29,6 +32,7 @@ class PlayerStats {
         })
     }
 
+    // Обновление позиции блока игровой статистики и всех изображений
     updatePosition({ position }) {
         this.position = {
             x: position.x,
@@ -48,6 +52,7 @@ class PlayerStats {
         })
     }
 
+    // Отображение числа собранных монет
     drawCoinsStats() {
         c.font = STATS_TEXT_FONT
         c.fillStyle = STATS_TEXT_COLOR
@@ -58,6 +63,7 @@ class PlayerStats {
         );
     }
 
+    // Отображение окна игровой статистики
     draw() {
         this.backgroundSprite.draw()
         this.coinSprite.draw()

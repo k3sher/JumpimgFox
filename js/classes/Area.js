@@ -1,4 +1,5 @@
 class Area {
+    // Инициализация скрытой области по Sprite стен и фона, а также массива блоков области
     constructor({ areaWallSprite, areaBackgroundSprite, areaBlocks }) {
         this.areaBlocks = areaBlocks
         this.areaWallSprite = areaWallSprite
@@ -6,6 +7,7 @@ class Area {
         this.alpha = 1
     }
 
+    // Подсчет площади пересечения
     calcAreaIntersection({ sides }) {
         let sumIntersection = 0
         this.areaBlocks.forEach(areaBlock => {
@@ -14,14 +16,20 @@ class Area {
         return sumIntersection
     }
 
+    // Подсчет коэффициента прозрачности
     updateAlpha({ playerSides }) {
-        this.alpha = 1 - 0.7 * this.calcAreaIntersection({ sides: playerSides }) / (playerSides.bottom - playerSides.top) / (playerSides.right - playerSides.left)
+        let regionArea = this.calcAreaIntersection({ sides: playerSides })
+        let playerHeight = playerSides.bottom - playerSides.top
+        let playerWidth = playerSides.right - playerSides.left
+        this.alpha = 1 - 0.7 * regionArea / playerHeight / playerWidth
     }
 
+    // Отображение стен скрытой области
     drawWalls() {
         this.areaWallSprite.drawWithTransparentAlpha({ alpha: this.alpha })
     }
 
+    // Отображение фона скрытой области
     drawBackground() {
         this.areaBackgroundSprite.drawWithTransparentAlpha({ alpha: this.alpha })
     }

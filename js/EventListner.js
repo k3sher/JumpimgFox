@@ -1,3 +1,4 @@
+// Обработка нажатий на клавиши
 window.addEventListener('keydown', (event) => {
     switch (event.code) {
         case 'KeyW':
@@ -11,7 +12,7 @@ window.addEventListener('keydown', (event) => {
             break
     }
 })
-
+// Обработка отпускания клавиш
 window.addEventListener('keyup', (event) => {
     switch (event.code) {
         case 'KeyW':

@@ -1,4 +1,5 @@
 class AreaBlock {
+    // Инициализация блока скрытой области
     constructor({ position, tileSize }) {
         this.position = position
         this.width = tileSize
@@ -11,6 +12,7 @@ class AreaBlock {
         }
     }
 
+    // Проверка наличия строгого пересечения (ненулевой площади)
     checkIntersction({ sides }) {
         return ((sides.top < this.sides.bottom) &&
             (sides.bottom > this.sides.top) &&
@@ -18,6 +20,7 @@ class AreaBlock {
             (sides.right > this.sides.left))
     }
 
+    // Подсчет площади пересечения
     calcIntersection({ sides }) {
         if (this.checkIntersction({ sides: sides })) {
             const intersectionWidth = Math.min(sides.right, this.sides.right) - Math.max(sides.left, this.sides.left)

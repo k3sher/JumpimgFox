@@ -1,4 +1,5 @@
 class Coin {
+    // Инициализация объекта монеты по ее координате
     constructor({ centerPosition }) {
         this.position = {
             x: centerPosition.x - COIN_IMAGE_SIZE / 2,
@@ -16,9 +17,11 @@ class Coin {
             position: this.position,
             imageSrc: COIN_IMAGE_SRC
         })
+        // Собрана ли монета
         this.collected = false
     }
 
+    // Проверка пересечения монеты
     checkIntersction({ sides }) {
         return ((sides.top < this.sides.bottom) &&
             (sides.bottom > this.sides.top) &&
@@ -26,12 +29,14 @@ class Coin {
             (sides.right > this.sides.left))
     }
 
+    // Отображение монеты, если еше не собрана
     draw() {
         if (!this.collected) {
             this.sprite.draw()
         }
     }
 
+    // Попытка сбора монеты персонажем
     tryCollect({ player }) {
         if (!this.collected) {
             if (this.checkIntersction({ sides: player.sides })) {
